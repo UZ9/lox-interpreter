@@ -5,6 +5,253 @@
 //
 char *read_file_contents(const char *filename);
 
+typedef enum {
+  LEFT_PAREN,
+  RIGHT_PAREN,
+  LEFT_BRACE,
+  RIGHT_BRACE,
+  COMMA,
+  DOT,
+  MINUS,
+  PLUS,
+  SEMICOLON,
+  SLASH,
+  STAR,
+
+  BANG,
+  BANG_EQUAL,
+  EQUAL,
+  EQUAL_EQUAL,
+  GREATER,
+  GREATER_EQUAL,
+  LESS,
+  LESS_EQUAL,
+
+  IDENTIFIER,
+  STRING,
+  NUMBER,
+
+  AND,
+  CLASS,
+  ELSE,
+  FALSE,
+  FUN,
+  FOR,
+  IF,
+  NIL,
+  OR,
+  PRINT,
+  RETURN,
+  SUPER,
+  THIS,
+  TRUE,
+  VAR,
+  WHILE,
+
+  // renamed to end_of_file to not conflict with stdio
+  END_OF_FILE,
+  NONE
+} TokenType;
+
+int current_idx = 0;
+int line = 0;
+int start = 0;
+
+int at_file_end(char *file_contents) {
+  return file_contents[current_idx] == '\0';
+}
+
+char advance(char *file_contents) { return file_contents[current_idx++]; }
+
+void add_data_token(TokenType token, void *data) {
+  printf("adding token with data\n");
+}
+
+void add_token(TokenType token) { printf("adding token\n"); }
+
+int match(char *file_contents, char desired) {
+  if (at_file_end(file_contents))
+    return 0;
+  if (file_contents[current_idx] != desired)
+    return 0;
+
+  current_idx++;
+
+  return 1;
+}
+
+char peek(char *file_contents) {
+  if (at_file_end(file_contents))
+    return '\0';
+
+  return file_contents[current_idx];
+}
+
+char peek_next(char *file_contents) {
+  if (at_file_end(file_contents + 1))
+    return '\0';
+
+  return file_contents[current_idx + 1];
+}
+
+void string(char *file_contents) {
+  // until we reach another quotation mark, keep iterating
+  while (peek(file_contents) != '"' && !at_file_end(file_contents)) {
+    if (peek(file_contents) == '\n')
+      line++;
+
+    advance(file_contents);
+  }
+
+  if (at_file_end(file_contents)) {
+    // reached end of file before quotation finished
+    fprintf(stderr, "Reached EOF before string completion");
+    return;
+  }
+
+  advance(file_contents); // get rid of last quotation mark
+
+  // get substring
+
+  char *parsed_str;
+
+  int str_len = current_idx - start - 1;
+
+  strncpy(parsed_str, file_contents + start + 1, str_len);
+
+  // NOTE: could add escape sequences here in the future
+  add_data_token(STRING, (void *)parsed_str);
+}
+
+int is_digit(char c) { return c >= '0' && c <= '9'; }
+
+int is_alpha(char c) {
+  return (c >= 'a' && c <= 'z') || (c >= 'A' || c <= 'Z') || c == '_';
+}
+
+void identifier(char *file_contents) {
+  while (is_alpha(peek(file_contents)))
+    advance(file_contents);
+
+  add_token(IDENTIFIER);
+}
+
+void number(char *file_contents) {
+  // go through the entire number
+  while (is_digit(peek(file_contents)))
+    advance(file_contents);
+
+  // number might be a decimal, if found discard and keep advancing
+  if (peek(file_contents) == '.' && is_digit(peek_next(file_contents))) {
+    advance(file_contents); // discard .
+
+    while (is_digit(peek(file_contents)))
+      advance(file_contents);
+  }
+
+  char *parsed_str;
+
+  int str_len = current_idx - start - 1;
+
+  strncpy(parsed_str, file_contents + start, str_len);
+
+  double num = atof(parsed_str);
+
+  // TODO: Find if there's a way to avoid having to move this to the heap
+  double *num_heap = (double *)malloc(sizeof(double));
+  *num_heap = num;
+
+  add_data_token(NUMBER, (void *)num_heap);
+}
+
+void scan_token(char *file_contents) {
+  char c = advance(file_contents);
+
+  switch (c) {
+  case ' ':
+  case '\r':
+  case '\t':
+    break;
+
+  case '\n':
+    line++;
+    break;
+  case '(':
+    add_token(LEFT_PAREN);
+    break;
+  case ')':
+    add_token(RIGHT_PAREN);
+    break;
+  case '{':
+    add_token(LEFT_BRACE);
+    break;
+  case '}':
+    add_token(RIGHT_BRACE);
+    break;
+  case ',':
+    add_token(COMMA);
+    break;
+  case '.':
+    add_token(DOT);
+    break;
+  case '-':
+    add_token(MINUS);
+    break;
+  case '+':
+    add_token(PLUS);
+    break;
+  case ';':
+    add_token(SEMICOLON);
+    break;
+  case '*':
+    add_token(STAR);
+    break;
+  case '!':
+    add_token(match(file_contents, '=') ? BANG_EQUAL : BANG);
+    break;
+  case '=':
+    add_token(match(file_contents, '=') ? EQUAL_EQUAL : EQUAL);
+    break;
+  case '>':
+    add_token(match(file_contents, '=') ? GREATER_EQUAL : GREATER);
+    break;
+  case '<':
+    add_token(match(file_contents, '=') ? LESS_EQUAL : LESS);
+    break;
+  case '/':
+    if (match(file_contents, '/')) {
+      // detected comment, keep going
+      while (peek(file_contents) != '\n' && !at_file_end(file_contents))
+        advance(file_contents);
+    } else {
+      add_token(SLASH);
+    }
+
+    break;
+
+  case '"':
+    string(file_contents);
+    break;
+
+  default:
+    // check if we're dealing with a number
+    if (is_digit(c)) {
+      number(file_contents);
+      return;
+    }
+
+    if (is_alpha(c)) {
+      // check for keyword
+      identifier(file_contents);
+      return;
+    }
+
+    // syntax error
+    fprintf(stderr, "Found invalid character %c\n", file_contents[current_idx]);
+    break;
+  }
+}
+
 int main(int argc, char *argv[]) {
   // Disable output buffering
   setbuf(stdout, NULL);
@@ -26,6 +273,11 @@ int main(int argc, char *argv[]) {
 
     // Uncomment this block to pass the first stage
     if (strlen(file_contents) > 0) {
+      while (1) {
+        start = current_idx;
+        scan_token(file_contents);
+      }
+
       fprintf(stderr, "Scanner not implemented\n");
       exit(1);
     }
