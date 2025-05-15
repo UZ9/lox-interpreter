@@ -428,7 +428,7 @@ int main(int argc, char *argv[]) {
         print_token_entry((struct token_entry_t *)tokens->data[i]);
       }
 
-      exit(1);
+      exit(0);
     }
     printf("EOF  null\n"); // Placeholder, remove this line when implementing
                            // the scanner
