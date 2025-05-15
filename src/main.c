@@ -125,7 +125,7 @@ void string(char *file_contents) {
 
   if (at_file_end(file_contents)) {
     // reached end of file before quotation finished
-    LOG_INTERPRETER_ERROR("Reached EOF before string completion\n");
+    LOG_INTERPRETER_ERROR("Unterminated string.");
     return;
   }
 
