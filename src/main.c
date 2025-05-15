@@ -60,6 +60,7 @@ typedef enum {
 
 struct token_entry_t {
   TokenType type;
+  char *raw;
   void *data;
 };
 
@@ -76,17 +77,18 @@ int at_file_end(char *file_contents) {
 
 char advance(char *file_contents) { return file_contents[current_idx++]; }
 
-void add_data_token(TokenType token, void *data) {
+void add_data_token(TokenType token, char *raw, void *data) {
 
   struct token_entry_t *entry = calloc(1, sizeof(struct token_entry_t));
 
   entry->data = data;
+  entry->raw = raw;
   entry->type = token;
 
   arraylist_add(tokens, (void *)entry);
 }
 
-void add_token(TokenType token) { add_data_token(token, NULL); }
+void add_token(TokenType token) { add_data_token(token, NULL, NULL); }
 
 int match(char *file_contents, char desired) {
   if (at_file_end(file_contents))
@@ -139,7 +141,7 @@ void string(char *file_contents) {
   strncpy(parsed_str, file_contents + start + 1, str_len);
 
   // NOTE: could add escape sequences here in the future
-  add_data_token(STRING, (void *)parsed_str);
+  add_data_token(STRING, parsed_str, (void *)parsed_str);
 }
 
 int is_digit(char c) { return c >= '0' && c <= '9'; }
@@ -169,7 +171,7 @@ void number(char *file_contents) {
       advance(file_contents);
   }
 
-  int str_len = current_idx - start - 1;
+  int str_len = current_idx - start;
   char *parsed_str = (char *)calloc(str_len, sizeof(char));
 
   strncpy(parsed_str, file_contents + start, str_len);
@@ -180,7 +182,7 @@ void number(char *file_contents) {
   double *num_heap = (double *)malloc(sizeof(double));
   *num_heap = num;
 
-  add_data_token(NUMBER, (void *)num_heap);
+  add_data_token(NUMBER, parsed_str, (void *)num_heap);
 }
 
 void print_token_entry(struct token_entry_t *entry) {
@@ -251,7 +253,7 @@ void print_token_entry(struct token_entry_t *entry) {
     printf("STRING \"%s\" %s\n", (char *)entry->data, (char *)entry->data);
     break;
   case NUMBER:
-    printf("NUMBER null\n");
+    printf("NUMBER \"%s\" %f\n", entry->raw, *((double *)(entry->data)));
     break;
   case AND:
     printf("AND null\n");
