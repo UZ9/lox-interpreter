@@ -421,14 +421,12 @@ int main(int argc, char *argv[]) {
         start = current_idx;
         scan_token(file_contents);
       }
+    }
 
-      add_token(END_OF_FILE);
+    add_token(END_OF_FILE);
 
-      for (int i = 0; i < tokens->size; i++) {
-        print_token_entry((struct token_entry_t *)tokens->data[i]);
-      }
-
-      exit(0);
+    for (int i = 0; i < tokens->size; i++) {
+      print_token_entry((struct token_entry_t *)tokens->data[i]);
     }
 
     free(file_contents);
