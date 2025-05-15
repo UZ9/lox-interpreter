@@ -109,8 +109,10 @@ int is_alpha(char c) {
   return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 
+int is_alpha_numeric(char c) { return is_alpha(c) || is_digit(c); }
+
 void identifier(char *file_contents) {
-  while (is_alpha(peek(file_contents))) {
+  while (is_alpha_numeric(peek(file_contents))) {
     advance(file_contents);
   }
 
