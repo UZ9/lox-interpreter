@@ -262,7 +262,7 @@ void print_token_entry(struct token_entry_t *entry) {
     printf("LESS_EQUAL <= null\n");
     break;
   case IDENTIFIER:
-    printf("IDENTIFIER null\n");
+    printf("IDENTIFIER %s null\n", (char *)entry->raw);
     break;
   case STRING:
     printf("STRING \"%s\" %s\n", (char *)entry->data, (char *)entry->data);
