@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "token.h"
+#include "token_keyword_table.h"
+
 //
 char *read_file_contents(const char *filename);
 
@@ -10,53 +13,9 @@ char *read_file_contents(const char *filename);
   fprintf(stderr, "[line %d] Error: " msg "\n", line, ##__VA_ARGS__);          \
   error = 1
 
-typedef enum {
-  LEFT_PAREN,
-  RIGHT_PAREN,
-  LEFT_BRACE,
-  RIGHT_BRACE,
-  COMMA,
-  DOT,
-  MINUS,
-  PLUS,
-  SEMICOLON,
-  SLASH,
-  STAR,
-
-  BANG,
-  BANG_EQUAL,
-  EQUAL,
-  EQUAL_EQUAL,
-  GREATER,
-  GREATER_EQUAL,
-  LESS,
-  LESS_EQUAL,
-
-  IDENTIFIER,
-  STRING,
-  NUMBER,
-
-  AND,
-  CLASS,
-  ELSE,
-  FALSE,
-  FUN,
-  FOR,
-  IF,
-  NIL,
-  OR,
-  PRINT,
-  RETURN,
-  SUPER,
-  THIS,
-  TRUE,
-  VAR,
-  WHILE,
-
-  // renamed to end_of_file to not conflict with stdio
-  END_OF_FILE,
-  NONE
-} TokenType;
+// TODO: could potentially move this to a stack-allocated structure and almost
+// completely avoid heap
+static struct token_keyword_table *keywords;
 
 struct token_entry_t {
   TokenType type;
@@ -155,7 +114,14 @@ void identifier(char *file_contents) {
     advance(file_contents);
   }
 
-  add_token(IDENTIFIER);
+  // retrieve string
+  int str_len = current_idx - start;
+  char *parsed_str = (char *)calloc(str_len, sizeof(char));
+
+  strncpy(parsed_str, file_contents + start, str_len);
+
+  // TODO: reserved
+  add_data_token(IDENTIFIER, parsed_str, parsed_str);
 }
 
 void number(char *file_contents) {
@@ -414,7 +380,28 @@ void scan_token(char *file_contents) {
   }
 }
 
-void initialize_tokenizer() { tokens = arraylist_create(50); }
+void initialize_tokenizer() {
+  tokens = arraylist_create(50);
+
+  keywords = hashmap_create(64);
+
+  hashmap_put(keywords, "and", AND);
+  hashmap_put(keywords, "class", CLASS);
+  hashmap_put(keywords, "else", ELSE);
+  hashmap_put(keywords, "false", FALSE);
+  hashmap_put(keywords, "for", FOR);
+  hashmap_put(keywords, "fun", FUN);
+  hashmap_put(keywords, "if", IF);
+  hashmap_put(keywords, "nil", NIL);
+  hashmap_put(keywords, "or", OR);
+  hashmap_put(keywords, "print", PRINT);
+  hashmap_put(keywords, "return", RETURN);
+  hashmap_put(keywords, "super", SUPER);
+  hashmap_put(keywords, "this", THIS);
+  hashmap_put(keywords, "true", TRUE);
+  hashmap_put(keywords, "var", VAR);
+  hashmap_put(keywords, "while", WHILE);
+}
 
 int main(int argc, char *argv[]) {
   // Disable output buffering
