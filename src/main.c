@@ -149,8 +149,6 @@ int is_alpha(char c) {
 
 void identifier(char *file_contents) {
   while (is_alpha(peek(file_contents))) {
-    printf("%d is thing", peek(file_contents));
-    printf("identify %d", current_idx);
     advance(file_contents);
   }
 
