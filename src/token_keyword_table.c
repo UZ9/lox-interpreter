@@ -80,7 +80,7 @@ TokenType hashmap_lookup(struct token_keyword_table *map, char *key) {
 
   if (map->entries[index].key == NULL || probe_count > map->capacity) {
     // didn't find key
-    return NONE;
+    return IDENTIFIER;
   } else {
     return map->entries[index].type;
   }

@@ -122,8 +122,11 @@ void identifier(char *file_contents) {
 
   strncpy(parsed_str, file_contents + start, str_len);
 
+  // check fo rreserved keyword
+  TokenType type = hashmap_lookup(keywords, parsed_str);
+
   // TODO: reserved
-  add_data_token(IDENTIFIER, parsed_str, parsed_str);
+  add_data_token(type, parsed_str, parsed_str);
 }
 
 void number(char *file_contents) {
@@ -166,6 +169,10 @@ void print_number_token(struct token_entry_t *entry) {
   } else {
     printf("NUMBER %s %s\n", entry->raw, entry->raw);
   }
+}
+
+void print_keyword_token(char *name, struct token_entry_t *entry) {
+  printf("%s %s null\n", name, (char *)entry->raw);
 }
 
 void print_token_entry(struct token_entry_t *entry) {
@@ -239,52 +246,52 @@ void print_token_entry(struct token_entry_t *entry) {
     print_number_token(entry);
     break;
   case AND:
-    printf("AND null\n");
+    print_keyword_token("AND", entry);
     break;
   case CLASS:
-    printf("CLASS null\n");
+    print_keyword_token("CLASS", entry);
     break;
   case ELSE:
-    printf("ELSE null\n");
+    print_keyword_token("ELSE", entry);
     break;
   case FALSE:
-    printf("FALSE null\n");
+    print_keyword_token("FALSE", entry);
     break;
   case FUN:
-    printf("FUN null\n");
+    print_keyword_token("FUN", entry);
     break;
   case FOR:
-    printf("FOR null\n");
+    print_keyword_token("FOR", entry);
     break;
   case IF:
-    printf("IF null\n");
+    print_keyword_token("IF", entry);
     break;
   case NIL:
-    printf("NIL null\n");
+    print_keyword_token("NIL", entry);
     break;
   case OR:
-    printf("OR null\n");
+    print_keyword_token("OR", entry);
     break;
   case PRINT:
-    printf("PRINT null\n");
+    print_keyword_token("PRINT", entry);
     break;
   case RETURN:
-    printf("RETURN null\n");
+    print_keyword_token("RETURN", entry);
     break;
   case SUPER:
-    printf("SUPER null\n");
+    print_keyword_token("SUPER", entry);
     break;
   case THIS:
-    printf("THIS null\n");
+    print_keyword_token("THIS", entry);
     break;
   case TRUE:
-    printf("TRUE null\n");
+    print_keyword_token("TRUE", entry);
     break;
   case VAR:
-    printf("VAR null\n");
+    print_keyword_token("VAR", entry);
     break;
   case WHILE:
-    printf("WHILE null\n");
+    print_keyword_token("WHILE", entry);
     break;
   case END_OF_FILE:
     printf("EOF  null\n");
