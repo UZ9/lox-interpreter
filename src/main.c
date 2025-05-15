@@ -7,7 +7,8 @@
 char *read_file_contents(const char *filename);
 
 #define LOG_INTERPRETER_ERROR(msg, ...)                                        \
-  fprintf(stderr, "[line %d] Error: " msg "\n", line, ##__VA_ARGS__);
+  fprintf(stderr, "[line %d] Error: " msg "\n", line, ##__VA_ARGS__);          \
+  error = 1
 
 typedef enum {
   LEFT_PAREN,
@@ -65,6 +66,7 @@ struct token_entry_t {
 int current_idx = 0;
 int line = 1;
 int start = 0;
+int error = 0;
 struct arraylist_t *tokens = NULL;
 
 int at_file_end(char *file_contents) {
@@ -437,6 +439,10 @@ int main(int argc, char *argv[]) {
     free(file_contents);
   } else {
     fprintf(stderr, "Unknown command: %s\n", command);
+    return 1;
+  }
+
+  if (error) {
     return 1;
   }
 
