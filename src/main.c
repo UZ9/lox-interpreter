@@ -71,7 +71,7 @@ int error = 0;
 struct arraylist_t *tokens = NULL;
 
 int at_file_end(char *file_contents) {
-  return file_contents[current_idx] != '\0';
+  return file_contents[current_idx] == '\0';
 }
 
 char advance(char *file_contents) { return file_contents[current_idx++]; }
