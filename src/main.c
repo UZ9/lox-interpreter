@@ -226,7 +226,7 @@ void print_token_entry(struct token_entry_t *entry) {
     printf("BANG ! null\n");
     break;
   case BANG_EQUAL:
-    printf("BANG_EQUAL = null\n");
+    printf("BANG_EQUAL != null\n");
     break;
   case EQUAL:
     printf("EQUAL = null\n");
