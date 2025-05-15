@@ -63,6 +63,7 @@ struct token_entry_t {
   void *data;
 };
 
+int file_contents_size = 0;
 int current_idx = 0;
 int line = 1;
 int start = 0;
@@ -70,7 +71,7 @@ int error = 0;
 struct arraylist_t *tokens = NULL;
 
 int at_file_end(char *file_contents) {
-  return file_contents[current_idx] == '\0';
+  return current_idx == file_contents_size - 1;
 }
 
 char advance(char *file_contents) { return file_contents[current_idx++]; }
@@ -124,16 +125,16 @@ void string(char *file_contents) {
 
   if (at_file_end(file_contents)) {
     // reached end of file before quotation finished
-    fprintf(stderr, "Reached EOF before string completion");
+    fprintf(stderr, "Reached EOF before string completion\n");
     return;
   }
 
   advance(file_contents); // get rid of last quotation mark
 
   // get substring
-  char *parsed_str;
 
-  int str_len = current_idx - start - 1;
+  int str_len = current_idx - start - 2;
+  char *parsed_str = (char *)calloc(str_len, sizeof(char));
 
   strncpy(parsed_str, file_contents + start + 1, str_len);
 
@@ -168,9 +169,8 @@ void number(char *file_contents) {
       advance(file_contents);
   }
 
-  char *parsed_str;
-
   int str_len = current_idx - start - 1;
+  char *parsed_str = (char *)calloc(str_len, sizeof(char));
 
   strncpy(parsed_str, file_contents + start, str_len);
 
@@ -248,7 +248,8 @@ void print_token_entry(struct token_entry_t *entry) {
     printf("IDENTIFIER null\n");
     break;
   case STRING:
-    printf("STRING null\n");
+
+    printf("STRING \"%s\" %s\n", (char *)entry->data, (char *)entry->data);
     break;
   case NUMBER:
     printf("NUMBER null\n");
@@ -419,6 +420,8 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Logs from your program will appear here!\n");
 
     char *file_contents = read_file_contents(argv[2]);
+
+    file_contents_size = strlen(file_contents);
 
     // Uncomment this block to pass the first stage
     if (strlen(file_contents) > 0) {
