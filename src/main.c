@@ -6,6 +6,9 @@
 //
 char *read_file_contents(const char *filename);
 
+#define LOG_INTERPRETER_ERROR(msg, ...)                                        \
+  fprintf(stderr, "[line %d] Error: " msg "\n", line, ##__VA_ARGS__);
+
 typedef enum {
   LEFT_PAREN,
   RIGHT_PAREN,
@@ -60,7 +63,7 @@ struct token_entry_t {
 };
 
 int current_idx = 0;
-int line = 0;
+int line = 1;
 int start = 0;
 struct arraylist_t *tokens = NULL;
 
@@ -139,12 +142,15 @@ void string(char *file_contents) {
 int is_digit(char c) { return c >= '0' && c <= '9'; }
 
 int is_alpha(char c) {
-  return (c >= 'a' && c <= 'z') || (c >= 'A' || c <= 'Z') || c == '_';
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 
 void identifier(char *file_contents) {
-  while (is_alpha(peek(file_contents)))
+  while (is_alpha(peek(file_contents))) {
+    printf("%d is thing", peek(file_contents));
+    printf("identify %d", current_idx);
     advance(file_contents);
+  }
 
   add_token(IDENTIFIER);
 }
@@ -379,7 +385,6 @@ void scan_token(char *file_contents) {
       number(file_contents);
       return;
     }
-
     if (is_alpha(c)) {
       // check for keyword
       identifier(file_contents);
@@ -387,7 +392,7 @@ void scan_token(char *file_contents) {
     }
 
     // syntax error
-    fprintf(stderr, "Found invalid character %c\n", file_contents[current_idx]);
+    LOG_INTERPRETER_ERROR("Unexpected character: %c", c);
     break;
   }
 }
