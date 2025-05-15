@@ -194,9 +194,9 @@ void print_number_token(struct token_entry_t *entry) {
 
   if (((int)(num)) == num) {
     // int
-    printf("NUMBER \"%s\" %d.0\n", entry->raw, (int)num);
+    printf("NUMBER %s %d.0\n", entry->raw, (int)num);
   } else {
-    printf("NUMBER \"%s\" %s\n", entry->raw, entry->raw);
+    printf("NUMBER %s %s\n", entry->raw, entry->raw);
   }
 }
 
