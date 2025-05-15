@@ -185,6 +185,21 @@ void number(char *file_contents) {
   add_data_token(NUMBER, parsed_str, (void *)num_heap);
 }
 
+void print_number_token(struct token_entry_t *entry) {
+  // this is far from ideal, but the tests require printing an int as x.0, and
+  // is not the default C behavior (this was intended for java)
+  // instead, check if it's an int and print accordingly
+
+  double num = *((double *)(entry->data));
+
+  if (((int)(num)) == num) {
+    // int
+    printf("NUMBER \"%s\" %d.0\n", entry->raw, (int)num);
+  } else {
+    printf("NUMBER \"%s\" %s\n", entry->raw, entry->raw);
+  }
+}
+
 void print_token_entry(struct token_entry_t *entry) {
   // the annoying part about c...
   switch (entry->type) {
@@ -253,7 +268,7 @@ void print_token_entry(struct token_entry_t *entry) {
     printf("STRING \"%s\" %s\n", (char *)entry->data, (char *)entry->data);
     break;
   case NUMBER:
-    printf("NUMBER \"%s\" %f\n", entry->raw, *((double *)(entry->data)));
+    print_number_token(entry);
     break;
   case AND:
     printf("AND null\n");
