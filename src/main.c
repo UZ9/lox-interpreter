@@ -1,3 +1,4 @@
+#include "arraylist.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -53,9 +54,15 @@ typedef enum {
   NONE
 } TokenType;
 
+struct token_entry_t {
+  TokenType type;
+  void *data;
+};
+
 int current_idx = 0;
 int line = 0;
 int start = 0;
+struct arraylist_t *tokens = NULL;
 
 int at_file_end(char *file_contents) {
   return file_contents[current_idx] == '\0';
@@ -64,10 +71,16 @@ int at_file_end(char *file_contents) {
 char advance(char *file_contents) { return file_contents[current_idx++]; }
 
 void add_data_token(TokenType token, void *data) {
-  printf("adding token with data\n");
+
+  struct token_entry_t *entry = calloc(1, sizeof(struct token_entry_t));
+
+  entry->data = data;
+  entry->type = token;
+
+  arraylist_add(tokens, (void *)entry);
 }
 
-void add_token(TokenType token) { printf("adding token\n"); }
+void add_token(TokenType token) { add_data_token(token, NULL); }
 
 int match(char *file_contents, char desired) {
   if (at_file_end(file_contents))
@@ -95,6 +108,7 @@ char peek_next(char *file_contents) {
 }
 
 void string(char *file_contents) {
+
   // until we reach another quotation mark, keep iterating
   while (peek(file_contents) != '"' && !at_file_end(file_contents)) {
     if (peek(file_contents) == '\n')
@@ -112,7 +126,6 @@ void string(char *file_contents) {
   advance(file_contents); // get rid of last quotation mark
 
   // get substring
-
   char *parsed_str;
 
   int str_len = current_idx - start - 1;
@@ -162,6 +175,133 @@ void number(char *file_contents) {
   *num_heap = num;
 
   add_data_token(NUMBER, (void *)num_heap);
+}
+
+void print_token_entry(struct token_entry_t *entry) {
+  // the annoying part about c...
+  switch (entry->type) {
+
+  case LEFT_PAREN:
+    printf("LEFT_PAREN null\n");
+    break;
+  case RIGHT_PAREN:
+    printf("RIGHT_PAREN null\n");
+    break;
+  case LEFT_BRACE:
+    printf("LEFT_BRACE null\n");
+    break;
+  case RIGHT_BRACE:
+    printf("RIGHT_BRACE null\n");
+    break;
+  case COMMA:
+    printf("COMMA null\n");
+    break;
+  case DOT:
+    printf("DOT null\n");
+    break;
+  case MINUS:
+    printf("MINUS null\n");
+    break;
+  case PLUS:
+    printf("PLUS null\n");
+    break;
+  case SEMICOLON:
+    printf("SEMICOLON null\n");
+    break;
+  case SLASH:
+    printf("SLASH null\n");
+    break;
+  case STAR:
+    printf("STAR null\n");
+    break;
+  case BANG:
+    printf("BANG null\n");
+    break;
+  case BANG_EQUAL:
+    printf("BANG_EQUAL null\n");
+    break;
+  case EQUAL:
+    printf("EQUAL null\n");
+    break;
+  case EQUAL_EQUAL:
+    printf("EQUAL_EQUAL null\n");
+    break;
+  case GREATER:
+    printf("GREATER null\n");
+    break;
+  case GREATER_EQUAL:
+    printf("GREATER_EQUAL null\n");
+    break;
+  case LESS:
+    printf("LESS null\n");
+    break;
+  case LESS_EQUAL:
+    printf("LESS_EQUAL null\n");
+    break;
+  case IDENTIFIER:
+    printf("IDENTIFIER null\n");
+    break;
+  case STRING:
+    printf("STRING null\n");
+    break;
+  case NUMBER:
+    printf("NUMBER null\n");
+    break;
+  case AND:
+    printf("AND null\n");
+    break;
+  case CLASS:
+    printf("CLASS null\n");
+    break;
+  case ELSE:
+    printf("ELSE null\n");
+    break;
+  case FALSE:
+    printf("FALSE null\n");
+    break;
+  case FUN:
+    printf("FUN null\n");
+    break;
+  case FOR:
+    printf("FOR null\n");
+    break;
+  case IF:
+    printf("IF null\n");
+    break;
+  case NIL:
+    printf("NIL null\n");
+    break;
+  case OR:
+    printf("OR null\n");
+    break;
+  case PRINT:
+    printf("PRINT null\n");
+    break;
+  case RETURN:
+    printf("RETURN null\n");
+    break;
+  case SUPER:
+    printf("SUPER null\n");
+    break;
+  case THIS:
+    printf("THIS null\n");
+    break;
+  case TRUE:
+    printf("TRUE null\n");
+    break;
+  case VAR:
+    printf("VAR null\n");
+    break;
+  case WHILE:
+    printf("WHILE null\n");
+    break;
+  case END_OF_FILE:
+    printf("EOF null\n");
+    break;
+  case NONE:
+    printf("NONE null\n");
+    break;
+  }
 }
 
 void scan_token(char *file_contents) {
@@ -252,10 +392,14 @@ void scan_token(char *file_contents) {
   }
 }
 
+void initialize_tokenizer() { tokens = arraylist_create(50); }
+
 int main(int argc, char *argv[]) {
   // Disable output buffering
   setbuf(stdout, NULL);
   setbuf(stderr, NULL);
+
+  initialize_tokenizer();
 
   if (argc < 3) {
     fprintf(stderr, "Usage: ./your_program tokenize <filename>\n");
@@ -273,12 +417,17 @@ int main(int argc, char *argv[]) {
 
     // Uncomment this block to pass the first stage
     if (strlen(file_contents) > 0) {
-      while (1) {
+      while (!at_file_end(file_contents)) {
         start = current_idx;
         scan_token(file_contents);
       }
 
-      fprintf(stderr, "Scanner not implemented\n");
+      add_token(END_OF_FILE);
+
+      for (int i = 0; i < tokens->size; i++) {
+        print_token_entry((struct token_entry_t *)tokens->data[i]);
+      }
+
       exit(1);
     }
     printf("EOF  null\n"); // Placeholder, remove this line when implementing
