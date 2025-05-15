@@ -182,61 +182,61 @@ void print_token_entry(struct token_entry_t *entry) {
   switch (entry->type) {
 
   case LEFT_PAREN:
-    printf("LEFT_PAREN null\n");
+    printf("LEFT_PAREN ( null\n");
     break;
   case RIGHT_PAREN:
-    printf("RIGHT_PAREN null\n");
+    printf("RIGHT_PAREN ) null\n");
     break;
   case LEFT_BRACE:
-    printf("LEFT_BRACE null\n");
+    printf("LEFT_BRACE { null\n");
     break;
   case RIGHT_BRACE:
-    printf("RIGHT_BRACE null\n");
+    printf("RIGHT_BRACE } null\n");
     break;
   case COMMA:
-    printf("COMMA null\n");
+    printf("COMMA , null\n");
     break;
   case DOT:
-    printf("DOT null\n");
+    printf("DOT . null\n");
     break;
   case MINUS:
-    printf("MINUS null\n");
+    printf("MINUS - null\n");
     break;
   case PLUS:
-    printf("PLUS null\n");
+    printf("PLUS + null\n");
     break;
   case SEMICOLON:
-    printf("SEMICOLON null\n");
+    printf("SEMICOLON ; null\n");
     break;
   case SLASH:
-    printf("SLASH null\n");
+    printf("SLASH / null\n");
     break;
   case STAR:
-    printf("STAR null\n");
+    printf("STAR * null\n");
     break;
   case BANG:
-    printf("BANG null\n");
+    printf("BANG ! null\n");
     break;
   case BANG_EQUAL:
-    printf("BANG_EQUAL null\n");
+    printf("BANG_EQUAL = null\n");
     break;
   case EQUAL:
-    printf("EQUAL null\n");
+    printf("EQUAL = null\n");
     break;
   case EQUAL_EQUAL:
-    printf("EQUAL_EQUAL null\n");
+    printf("EQUAL_EQUAL == null\n");
     break;
   case GREATER:
-    printf("GREATER null\n");
+    printf("GREATER > null\n");
     break;
   case GREATER_EQUAL:
-    printf("GREATER_EQUAL null\n");
+    printf("GREATER_EQUAL >= null\n");
     break;
   case LESS:
-    printf("LESS null\n");
+    printf("LESS < null\n");
     break;
   case LESS_EQUAL:
-    printf("LESS_EQUAL null\n");
+    printf("LESS_EQUAL <= null\n");
     break;
   case IDENTIFIER:
     printf("IDENTIFIER null\n");
