@@ -248,6 +248,7 @@ void print_token_entry(struct token_entry_t *entry) {
     printf("IDENTIFIER null\n");
     break;
   case STRING:
+    printf("STRING");
 
     printf("STRING \"%s\" %s\n", (char *)entry->data, (char *)entry->data);
     break;
