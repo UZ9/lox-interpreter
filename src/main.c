@@ -71,7 +71,7 @@ int error = 0;
 struct arraylist_t *tokens = NULL;
 
 int at_file_end(char *file_contents) {
-  return current_idx == file_contents_size - 1;
+  return file_contents[current_idx] != '\0';
 }
 
 char advance(char *file_contents) { return file_contents[current_idx++]; }
@@ -248,8 +248,6 @@ void print_token_entry(struct token_entry_t *entry) {
     printf("IDENTIFIER null\n");
     break;
   case STRING:
-    printf("STRING");
-
     printf("STRING \"%s\" %s\n", (char *)entry->data, (char *)entry->data);
     break;
   case NUMBER:
